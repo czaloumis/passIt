@@ -1,0 +1,36 @@
+services:
+  psql_bp:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${BLUEPRINT_DB_DATABASE}
+      POSTGRES_USER: ${BLUEPRINT_DB_USERNAME}
+      POSTGRES_PASSWORD: ${BLUEPRINT_DB_PASSWORD}
+    ports:
+      - "${BLUEPRINT_DB_PORT}:5432"
+    volumes:
+      - psql_volume_bp:/var/lib/postgresql/data
+  keyclock:
+    build:
+      context: ./keyclock
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - psql_bp
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://psql_bp:5432/keycloack
+      KC_DB_USERNAME: ${BLUEPRINT_DB_USERNAME}
+      KC_DB_PASSWORD: ${BLUEPRINT_DB_PASSWORD}
+    ports:
+      - "8443:8443"
+      - "9000:9000"
+    command:
+      - start
+      - --optimized
+      - --hostname=localhost
+
+volumes:
+  psql_volume_bp:
