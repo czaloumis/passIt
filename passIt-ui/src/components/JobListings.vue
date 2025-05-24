@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { RouterLink } from 'vue-router';
 import { defineProps, ref, computed } from 'vue';
-import { type Job } from '@/models/jobs'
+import { type Job } from '@/models/Jobs'
 
 const props = defineProps({
     job: Object as () => Job
@@ -33,12 +34,12 @@ const truncateDescription = computed(() => {
                 <div>
                   {{ truncateDescription }}
                 </div>
-                <button @click="toggleFullDescription" class="text-green-500 hover:text-green-600 mb-5">
+                <button @click="toggleFullDescription" class="text-blue-500 hover:text-blue-600 mb-5">
                   {{ showFullDescription ? 'Show Less' : 'Show More' }}
                 </button>
               </div>
 
-              <h3 class="text-green-500 mb-2">{{ job?.salary }} / Year</h3>
+              <h3 class="text-blue-500 mb-2">{{ job?.salary }} / Year</h3>
 
               <div class="border border-gray-100 mb-5"></div>
 
@@ -47,12 +48,12 @@ const truncateDescription = computed(() => {
                   <i class="pi pi-map-marker text-orange-700"></i>
                   {{ job?.location }}
                 </div>
-                <a
-                  :href="'/job/' + job?.id"
-                  class="h-[36px] bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-center text-sm"
+                <RouterLink
+                  :to="'/job/' + job?.id"
+                  class="h-[36px] bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-center text-sm"
                 >
                   Read More
-                </a>
+                </RouterLink>
               </div>
             </div>
           </div>
