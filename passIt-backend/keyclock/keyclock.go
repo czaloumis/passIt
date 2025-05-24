@@ -15,11 +15,22 @@ var KeycloackHost = "https://localhost:8443"
 var KeycloackRealm = "passit"
 var KeycloackAdminUsername = "passit-admin"
 var KeycloackAdminPassword = "yP7!vR2qLz#eX9sT" // TODO: This should be securely stored and not hardcoded
+var KeycloackClientID = "passit-app"            // This is the client ID for the Keycloak client
+var KeycloackClientSecret = "1FtuA544DcOSpjobIsM1NlVzq5MWOGpH"
 
 type KeycloakClient struct {
 	client      *gocloak.GoCloak
 	restyClient *resty.Client
 	ctx         context.Context
+}
+
+func (k *KeycloakClient) LoginUser(username string, password string) (string, error) {
+	token, err := k.client.Login(k.ctx, KeycloackClientID, KeycloackClientSecret, KeycloackRealm, username, password)
+	if err != nil {
+		log.Println("Error logging in with user:", err)
+		return "", err
+	}
+	return token.AccessToken, nil
 }
 
 func (k *KeycloakClient) NewKeycloakClient() *KeycloakClient {

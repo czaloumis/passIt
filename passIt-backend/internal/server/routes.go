@@ -21,6 +21,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/", s.HelloWorldHandler)
 	r.GET("/health", s.healthHandler)
 	r.POST("/user", s.CreateUserHandler)
+	r.GET("/login", s.LoginUserHandler)
 
 	api := r.Group("/api")
 

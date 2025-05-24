@@ -12,6 +12,11 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+type LoginUserRequestBody struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type FindUserByIdRequestBody struct {
 	ID uuid.UUID `json:"id"`
 }
@@ -28,6 +33,29 @@ type CreateUserRequestBody struct {
 type CreateUserReturnBody struct {
 	User            models.User `json:"user"`
 	KeycloackUserID string      `json:"keycloak_user_id"`
+}
+
+func (s *Server) LoginUserHandler(c *gin.Context) {
+	var input LoginUserRequestBody
+	var keycloackClient keyclock.KeycloakClient
+	k := keycloackClient.NewKeycloakClient()
+	json.NewDecoder(c.Request.Body).Decode(&input)
+
+	token, err := k.LoginUser(input.Username, input.Password)
+	if err != nil {
+		log.Println("Error logging in with user:", err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+	defer c.Request.Body.Close()
+
+	c.Header("Authorization", "Bearer "+token)
+	c.JSON(http.StatusOK, PassItResponseBody{
+		Code: codes.UserCreatedSuccessfully,
+		Data: nil,
+	},
+	)
+
 }
 
 func (s *Server) CreateUserHandler(c *gin.Context) {
