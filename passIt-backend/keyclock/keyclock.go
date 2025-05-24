@@ -10,10 +10,11 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+// TODO: get those from env variables
 var KeycloackHost = "https://localhost:8443"
 var KeycloackRealm = "passit"
-var KeycloackAdminUsername = "admin"
-var KeycloackAdminPassword = "admin"
+var KeycloackAdminUsername = "passit-admin"
+var KeycloackAdminPassword = "yP7!vR2qLz#eX9sT" // TODO: This should be securely stored and not hardcoded
 
 type KeycloakClient struct {
 	client      *gocloak.GoCloak

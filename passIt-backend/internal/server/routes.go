@@ -11,10 +11,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// gin.SetMode(gin.ReleaseMode) // Set Gin to release mode
 	r := gin.Default()
 
-	// r.Use(auth())
-
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"}, // Add your frontend URL
+		AllowOrigins:     []string{"http://localhost:5173"}, // TODO: Add your frontend URL from env variables
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true, // Enable cookies/auth

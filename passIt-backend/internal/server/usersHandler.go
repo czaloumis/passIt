@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"passIt/internal/models"
+	codes "passIt/internal/passit-codes"
 	"passIt/keyclock"
 
 	"github.com/gin-gonic/gin"
@@ -55,9 +56,9 @@ func (s *Server) CreateUserHandler(c *gin.Context) {
 
 	defer c.Request.Body.Close()
 
-	c.JSON(http.StatusOK, CreateUserReturnBody{
-		User:            user,
-		KeycloackUserID: keyclockUserID,
+	c.JSON(http.StatusOK, PassItResponseBody{
+		Code: codes.UserCreatedSuccessfully,
+		Data: user,
 	},
 	)
 }

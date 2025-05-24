@@ -1,0 +1,37 @@
+{
+  "realm": "passit",
+  "enabled": true,
+  "users": [
+    {
+      "username": "passit-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Admin",
+      "lastName": "User",
+      "email": "admin@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "yP7!vR2qLz#eX9sT",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "realm-admin"
+      ],
+      "clientRoles": {
+        "realm-management": [
+          "manage-users",
+          "view-users",
+          "manage-realm",
+          "manage-clients",
+          "view-realm",
+          "view-clients",
+          "manage-events",
+          "view-events",
+          "admin"
+        ]
+      }
+    }
+  ]
+}

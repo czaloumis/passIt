@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// TODO: Use the keycloack client from the keycloak package
 func auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Extract token from the request header

@@ -15,6 +15,11 @@ docker run --name keycloak -p 8443:8443 -p 9000:9000 \
         start --optimized --hostname=localhost
 ```
 
+## Database Migration
+```bash
+migrate -path internal/database/migration/ -database "postgresql://melkey:password1234@localhost:5432/blueprint?sslmode=disable" -verbose up
+``` 
+
 ## MakeFile
 
 Run build make command with tests
