@@ -29,18 +29,22 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/login", s.LoginUserHandler)
 	r.GET("/jobs", s.JobsHandler)
 	r.GET("/jobs/:id", s.GetJobHandler)
+	r.GET("/user/find", s.FindUserByIdHandler)
+	r.GET("/user", s.FindUserByEmailHandler)
+	r.PUT("/user", s.UpdateUserByIdHandler)
+	r.GET("/users", s.GetAllUsersHandler)
 
-	api := r.Group("/api")
+	// api := r.Group("/api")
 
-	api.Use(auth())
+	// api.Use(auth())
 
-	api.GET("/user", s.FindUserByEmailHandler)
-	api.GET("/users", s.GetAllUsersHandler)
-	api.PUT("/user", s.UpdateUserByIdHandler)
-	api.GET("/user/find", s.FindUserByIdHandler)
+	// api.GET("/user", s.FindUserByEmailHandler)
+	// api.GET("/users", s.GetAllUsersHandler)
+	// api.PUT("/user", s.UpdateUserByIdHandler)
+	// api.GET("/user/find", s.FindUserByIdHandler)
 
-	tf := r.Group("/api/terraform")
-	tf.GET("/init", s.TerraformInitHandler)
+	// tf := r.Group("/api/terraform")
+	// tf.GET("/init", s.TerraformInitHandler)
 
 	return r
 }

@@ -8,8 +8,10 @@ import (
 	codes "passIt/internal/passit-codes"
 	"passIt/keyclock"
 
+	"passIt/internal/utils"
+
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 )
 
 type LoginUserRequestBody struct {
@@ -26,8 +28,8 @@ type FindUserByEmailRequestBody struct {
 }
 
 type CreateUserRequestBody struct {
-	User     models.User `json:"user"`
-	Password string      `json:"password"`
+	User models.User `json:"user"`
+	// Password string      `json:"password"`
 }
 
 type CreateUserReturnBody struct {
@@ -60,22 +62,35 @@ func (s *Server) LoginUserHandler(c *gin.Context) {
 
 func (s *Server) CreateUserHandler(c *gin.Context) {
 	var input CreateUserRequestBody
-	var keycloackClient keyclock.KeycloakClient
-	k := keycloackClient.NewKeycloakClient()
+	// var keycloackClient keyclock.KeycloakClient
+	// k := keycloackClient.NewKeycloakClient()
+	log.Printf("Request Body: %+v\n", c.Request.Body)
 
-	json.NewDecoder(c.Request.Body).Decode(&input)
+	if !utils.DecodeServerInput(c, &input) {
+		return // Stop processing if decode fails
+	}
+
+	// if err := json.NewDecoder(c.Request.Body).Decode(&input); err != nil {
+	// 	log.Println("JSON decode error:", err)
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	// 	return
+	// }
+
+	log.Printf("Input: %+v\n", input)
 
 	user := input.User
 
-	keyclockUserID, err := k.CreateUser(&user, input.Password)
-	if err != nil {
-		log.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user in Keycloak"})
-		return
-	}
+	log.Printf("Creating user: %+v\n", user)
 
-	user.KeycloackID = keyclockUserID
-	err = s.db.CreateUser(&user)
+	// keyclockUserID, err := k.CreateUser(&user, input.Password)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user in Keycloak"})
+	// 	return
+	// }
+
+	// user.KeycloackID = keyclockUserID
+	err := s.db.CreateUser(&user)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
@@ -94,7 +109,9 @@ func (s *Server) CreateUserHandler(c *gin.Context) {
 func (s *Server) FindUserByIdHandler(c *gin.Context) {
 	var input FindUserByIdRequestBody
 
-	json.NewDecoder(c.Request.Body).Decode(&input)
+	if !utils.DecodeServerInput(c, &input) {
+		return // Stop processing if decode fails
+	}
 	user, err := s.db.FindUserById(input.ID)
 	if err != nil {
 		log.Println(err)
@@ -110,7 +127,9 @@ func (s *Server) FindUserByIdHandler(c *gin.Context) {
 func (s *Server) FindUserByEmailHandler(c *gin.Context) {
 	var input FindUserByEmailRequestBody
 
-	json.NewDecoder(c.Request.Body).Decode(&input)
+	if !utils.DecodeServerInput(c, &input) {
+		return // Stop processing if decode fails
+	}
 	user, err := s.db.FindUserByEmail(input.Email)
 	if err != nil {
 		log.Println(err)
@@ -126,10 +145,11 @@ func (s *Server) FindUserByEmailHandler(c *gin.Context) {
 func (s *Server) UpdateUserByIdHandler(c *gin.Context) {
 	var user models.User
 
-	json.NewDecoder(c.Request.Body).Decode(&user)
+	if !utils.DecodeServerInput(c, &user) {
+		return // Stop processing if decode fails
+	}
 	err := s.db.UpdateUserById(&user)
 	if err != nil {
-		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
 		return
 	}

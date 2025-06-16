@@ -10,9 +10,12 @@ import (
 	"strconv"
 	"time"
 
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/joho/godotenv/autoload"
-	uuid "github.com/satori/go.uuid"
 )
 
 // Service represents a service that interacts with a database.
@@ -21,6 +24,9 @@ type Service interface {
 	// The keys and values in the map are service-specific.
 	Health() map[string]string
 
+	GetGormDB() *gorm.DB
+
+	Migration()
 	// Close terminates the database connection.
 	// It returns an error if the connection cannot be closed.
 	Close() error
@@ -37,16 +43,17 @@ type Service interface {
 }
 
 type service struct {
-	db *sql.DB
+	db     *sql.DB
+	gormDB *gorm.DB
 }
 
 var (
-	database   = os.Getenv("BLUEPRINT_DB_DATABASE")
-	password   = os.Getenv("BLUEPRINT_DB_PASSWORD")
-	username   = os.Getenv("BLUEPRINT_DB_USERNAME")
-	port       = os.Getenv("BLUEPRINT_DB_PORT")
-	host       = os.Getenv("BLUEPRINT_DB_HOST")
-	schema     = os.Getenv("BLUEPRINT_DB_SCHEMA")
+	database   = os.Getenv("DB_DATABASE")
+	password   = os.Getenv("DB_PASSWORD")
+	username   = os.Getenv("DB_USERNAME")
+	port       = os.Getenv("DB_PORT")
+	host       = os.Getenv("DB_HOST")
+	schema     = os.Getenv("DB_SCHEMA")
 	dbInstance *service
 )
 
@@ -60,10 +67,32 @@ func New() Service {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	gormDB, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: db,
+	}), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	dbInstance = &service{
-		db: db,
+		db:     db,
+		gormDB: gormDB,
 	}
 	return dbInstance
+}
+
+func (s *service) GetGormDB() *gorm.DB {
+	return s.gormDB
+}
+
+func (s *service) Migration() {
+	// Migrate the schema, creating tables, constraints, etc.
+	err := s.gormDB.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Fatalf("Failed to migrate database schema: %v", err)
+	}
+	log.Println("Database migration completed successfully.")
 }
 
 // Health checks the health of the database connection by pinging the database.

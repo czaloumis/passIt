@@ -3,46 +3,46 @@ services:
     image: postgres:17
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${BLUEPRINT_DB_DATABASE}
-      POSTGRES_USER: ${BLUEPRINT_DB_USERNAME}
-      POSTGRES_PASSWORD: ${BLUEPRINT_DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "${BLUEPRINT_DB_PORT}:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - psql_volume_bp:/var/lib/postgresql/data
-  keyclock:
-    build:
-      context: ./setup/keycloack
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    depends_on:
-      - psql_bp
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://psql_bp:5432/keycloack
-      KC_DB_USERNAME: ${BLUEPRINT_DB_USERNAME}
-      KC_DB_PASSWORD: ${BLUEPRINT_DB_PASSWORD}
-    ports:
-      - "8443:8443"
-      - "9000:9000"
-    command:
-      - start
-      - --optimized
-      - --hostname=localhost
-      - --import-realm
-  db-init-keycloack:
-    image: postgres:17
-    depends_on:
-      - psql_bp
-    environment:
-      PGPASSWORD: ${BLUEPRINT_DB_PASSWORD}
-    entrypoint: >
-      bash -c "
-        until pg_isready -h psql_bp -U ${BLUEPRINT_DB_USERNAME}; do sleep 2; done;
-        psql -h psql_bp -U ${BLUEPRINT_DB_USERNAME} -d postgres -c 'CREATE DATABASE keycloack;' || true
-      "
+  # keyclock:
+  #   build:
+  #     context: ./setup/keycloack
+  #     dockerfile: Dockerfile
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - psql_bp
+  #   environment:
+  #     KC_BOOTSTRAP_ADMIN_USERNAME: admin
+  #     KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+  #     KC_DB: postgres
+  #     KC_DB_URL: jdbc:postgresql://psql_bp:5432/keycloack
+  #     KC_DB_USERNAME: ${BLUEPRINT_DB_USERNAME}
+  #     KC_DB_PASSWORD: ${BLUEPRINT_DB_PASSWORD}
+  #   ports:
+  #     - "8443:8443"
+  #     - "9000:9000"
+  #   command:
+  #     - start
+  #     - --optimized
+  #     - --hostname=localhost
+  #     - --import-realm
+  # db-init-keycloack:
+  #   image: postgres:17
+  #   depends_on:
+  #     - psql_bp
+  #   environment:
+  #     PGPASSWORD: ${BLUEPRINT_DB_PASSWORD}
+  #   entrypoint: >
+  #     bash -c "
+  #       until pg_isready -h psql_bp -U ${BLUEPRINT_DB_USERNAME}; do sleep 2; done;
+  #       psql -h psql_bp -U ${BLUEPRINT_DB_USERNAME} -d postgres -c 'CREATE DATABASE keycloack;' || true
+  #     "
 
 volumes:
   psql_volume_bp:

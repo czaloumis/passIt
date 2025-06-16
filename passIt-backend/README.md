@@ -6,6 +6,9 @@ One Paragraph of project description goes here
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
+## Prerequisites
+- go1.24.0
+
 ## Keyclock
 
 ```bash
@@ -17,7 +20,7 @@ docker run --name keycloak -p 8443:8443 -p 9000:9000 \
 
 ## Database Migration
 ```bash
-migrate -path internal/database/migration/ -database "postgresql://melkey:password1234@localhost:5432/blueprint?sslmode=disable" -verbose up
+go run ./internal/database/migration/migration.go
 ``` 
 
 ## MakeFile
