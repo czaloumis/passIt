@@ -23,10 +23,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 		AllowCredentials: true, // Enable cookies/auth
 	}))
 
+	r.GET("/login", s.LoginUserHandler)
+
+	r.Use(auth()) // Apply the auth middleware to all routes
+
 	r.GET("/", s.HelloWorldHandler)
 	r.GET("/health", s.healthHandler)
 	r.POST("/user", s.CreateUserHandler)
-	r.GET("/login", s.LoginUserHandler)
 	r.GET("/jobs", s.JobsHandler)
 	r.GET("/jobs/:id", s.GetJobHandler)
 	r.GET("/user/find", s.FindUserByIdHandler)

@@ -24,16 +24,7 @@ type KeycloakClient struct {
 	ctx         context.Context
 }
 
-func (k *KeycloakClient) LoginUser(username string, password string) (string, error) {
-	token, err := k.client.Login(k.ctx, KeycloackClientID, KeycloackClientSecret, KeycloackRealm, username, password)
-	if err != nil {
-		log.Println("Error logging in with user:", err)
-		return "", err
-	}
-	return token.AccessToken, nil
-}
-
-func (k *KeycloakClient) NewKeycloakClient() *KeycloakClient {
+func NewKeycloakClient() *KeycloakClient {
 	restyClient := resty.New()
 	restyClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
@@ -45,6 +36,15 @@ func (k *KeycloakClient) NewKeycloakClient() *KeycloakClient {
 		restyClient: restyClient,
 		ctx:         context.Background(),
 	}
+}
+
+func (k *KeycloakClient) LoginUser(username string, password string) (string, error) {
+	token, err := k.client.Login(k.ctx, KeycloackClientID, KeycloackClientSecret, KeycloackRealm, username, password)
+	if err != nil {
+		log.Println("Error logging in with user:", err)
+		return "", err
+	}
+	return token.AccessToken, nil
 }
 
 func (k *KeycloakClient) GetUserInfo(token string) (*gocloak.UserInfo, error) {

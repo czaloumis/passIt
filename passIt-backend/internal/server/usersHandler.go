@@ -39,8 +39,7 @@ type CreateUserReturnBody struct {
 
 func (s *Server) LoginUserHandler(c *gin.Context) {
 	var input LoginUserRequestBody
-	var keycloackClient keyclock.KeycloakClient
-	k := keycloackClient.NewKeycloakClient()
+	k := keyclock.NewKeycloakClient()
 	json.NewDecoder(c.Request.Body).Decode(&input)
 
 	token, err := k.LoginUser(input.Username, input.Password)
@@ -53,7 +52,7 @@ func (s *Server) LoginUserHandler(c *gin.Context) {
 
 	c.Header("Authorization", "Bearer "+token)
 	c.JSON(http.StatusOK, PassItResponseBody{
-		Code: codes.UserCreatedSuccessfully,
+		Code: codes.UserLoggedInSuccessfully,
 		Data: nil,
 	},
 	)
@@ -69,12 +68,6 @@ func (s *Server) CreateUserHandler(c *gin.Context) {
 	if !utils.DecodeServerInput(c, &input) {
 		return // Stop processing if decode fails
 	}
-
-	// if err := json.NewDecoder(c.Request.Body).Decode(&input); err != nil {
-	// 	log.Println("JSON decode error:", err)
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-	// 	return
-	// }
 
 	log.Printf("Input: %+v\n", input)
 

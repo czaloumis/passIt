@@ -1,27 +1,60 @@
-# Project passIt
+# passIt
 
-One Paragraph of project description goes here
+A modern password management and sharing platform built with Go, Keycloak, and PostgreSQL.
+
+## Table of Contents
+- [Getting Started](#getting-started)
+- [Prerequisites](#prerequisites)
+- [Database Migration](#database-migration)
+- [Local Development](#local-development)
+- [Makefile Commands](#makefile-commands)
+- [Project Structure](#project-structure)
+- [Environment Variables](#environment-variables)
+- [License](#license)
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+Follow these instructions to set up the project for local development and testing.
 
 ## Prerequisites
-- go1.24.0
-
-## Keyclock
-
-```bash
-docker run --name keycloak -p 8443:8443 -p 9000:9000 \
-        -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=change_me \
-        mykeycloak \
-        start --optimized --hostname=localhost
-```
+- Go 1.24.0 or higher
+- Docker & Docker Compose
 
 ## Database Migration
+
+Run database migrations:
 ```bash
 go run ./internal/database/migration/migration.go
-``` 
+```
+
+## Local Developement
+
+### Partial developement
+
+With docker-compose.yml file a functional application will start
+Start Core Services:
+- Database
+- Keycloack
+```bash
+docker-compose up -d
+```
+Run the Go application:
+```bash
+make run
+```
+
+### Full developement
+
+Start all Services:
+- Database
+- Keycloack
+- elasticsearch
+- kibana(elasticSearch UI)
+- filebeat
+- Passit backend(If there is no need for that you can comment it out)
+```bash
+docker-compose -f docker-compose-full.yml up --build -d
+```
 
 ## MakeFile
 
@@ -67,4 +100,17 @@ make test
 Clean up binary from the last build:
 ```bash
 make clean
+```
+
+## Environment Variables
+An .env file in the root directory is needed with the following variables:
+```bash
+PORT=8080
+APP_ENV=local
+DB_HOST=localhost
+DB_PORT=5432
+DB_DATABASE=passit
+DB_USERNAME=melkey
+DB_PASSWORD=password1234
+DB_SCHEMA=public
 ```

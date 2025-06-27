@@ -5,6 +5,7 @@ package codes
 const (
 	UserCreatedSuccessfully   = 201
 	UserUpdatedSuccessfully   = 200
+	UserLoggedInSuccessfully  = 202
 	JobsRetrievedSuccessfully = 205
 
 	// Error codes
