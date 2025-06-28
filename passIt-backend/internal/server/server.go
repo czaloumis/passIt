@@ -12,7 +12,6 @@ import (
 	"passIt/internal/auth"
 	"passIt/internal/config"
 	"passIt/internal/database"
-	"passIt/internal/handlers"
 
 	// "passIt/internal/store"
 
@@ -22,9 +21,8 @@ import (
 type Server struct {
 	port int
 
-	db           database.Service
-	gormDB       *gorm.DB
-	authHandeler *handlers.AuthHandler
+	db     database.Service
+	gormDB *gorm.DB
 }
 
 func NewServer(ctx context.Context, cfg *config.Config, authClient *auth.Client, redisClient *redis.Client) *http.Server {

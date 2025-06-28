@@ -53,7 +53,6 @@ func (s *Server) RegisterRoutes(ctx context.Context, authClient *auth.Client, re
 	r.GET("/health", s.healthHandler)
 	r.POST("/user", s.CreateUserHandler)
 	r.GET("/jobs", s.JobsHandler)
-	r.GET("/jobs/:id", s.GetJobHandler)
 	r.GET("/user/find", s.FindUserByIdHandler)
 	r.GET("/user", s.FindUserByEmailHandler)
 	r.PUT("/user", s.UpdateUserByIdHandler)
@@ -95,62 +94,5 @@ func (s *Server) JobsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, PassItResponseBody{
 		Code: codes.JobsRetrievedSuccessfully,
 		Data: jobs,
-	})
-}
-
-type Job struct {
-	ID          string `json:"id"`
-	Title       string `json:"title"`
-	Type        string `json:"type"`
-	Location    string `json:"location"`
-	Description string `json:"description"`
-	Salary      string `json:"salary"`
-	Company     struct {
-		Name         string `json:"name"`
-		Description  string `json:"description"`
-		ContactEmail string `json:"contactEmail"`
-		ContactPhone string `json:"contactPhone"`
-	} `json:"company"`
-}
-
-func (s *Server) GetJobHandler(c *gin.Context) {
-	jobsFilePath := filepath.Join("..", "passIt-ui", "src", "jobs.json")
-	file, err := os.Open(jobsFilePath)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not open jobs.json"})
-		return
-	}
-
-	type JobsJSON struct {
-		Jobs []Job `json:"jobs"`
-	}
-	var jobsJSON JobsJSON
-	if err := json.NewDecoder(file).Decode(&jobsJSON); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not decode jobs.json"})
-		return
-	}
-	defer file.Close()
-
-	jobID, found := c.Params.Get("id")
-	if !found {
-		c.JSON(http.StatusBadRequest, PassItResponseBody{
-			Code: codes.GetJobBadRequest,
-			Data: nil,
-		})
-		return
-	}
-
-	for _, job := range jobsJSON.Jobs {
-		if jobID == job.ID {
-			c.JSON(http.StatusOK, PassItResponseBody{
-				Code: codes.JobsRetrievedSuccessfully,
-				Data: job,
-			})
-			return
-		}
-	}
-	c.JSON(http.StatusNotFound, PassItResponseBody{
-		Code: codes.JobIdNotFound,
-		Data: nil,
 	})
 }
