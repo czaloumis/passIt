@@ -47,6 +47,15 @@ type service struct {
 	gormDB *gorm.DB
 }
 
+type DBConfig struct {
+	Host     string
+	Port     string
+	Database string
+	Username string
+	Password string
+	Schema   string
+}
+
 var (
 	database   = os.Getenv("DB_DATABASE")
 	password   = os.Getenv("DB_PASSWORD")

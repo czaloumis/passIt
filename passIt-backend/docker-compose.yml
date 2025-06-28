@@ -33,6 +33,12 @@ services:
       - --optimized
       - --hostname=localhost
       - --import-realm
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--requirepass", "redis_password"]
   db-init-keycloack:
     image: postgres:17
     depends_on:

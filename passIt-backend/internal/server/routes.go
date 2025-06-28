@@ -1,20 +1,34 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"os"
 	"path/filepath"
 
+	"passIt/internal/auth"
+	"passIt/internal/handlers"
+	"passIt/internal/middleware"
 	codes "passIt/internal/passit-codes"
+	"passIt/internal/store"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
-func (s *Server) RegisterRoutes() http.Handler {
+func (s *Server) RegisterRoutes(ctx context.Context, authClient *auth.Client, redisClient *redis.Client) http.Handler {
 	// gin.SetMode(gin.ReleaseMode) // Set Gin to release mode
 	r := gin.Default()
+	r.LoadHTMLGlob("./internal/templates/*.*")
+
+	authStore := store.NewAuthRedisManager(redisClient)
+	sessionStore := store.NewSessionRedisManager(redisClient)
+
+	authHandler := handlers.NewAuthHandler(authClient, authStore, sessionStore)
+	// Initialize the auth middleware with your Keycloak configuration
+	authMiddleware := middleware.NewAuthMiddleware(ctx, authClient, sessionStore)
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"}, // TODO: Add your frontend URL from env variables
@@ -23,11 +37,19 @@ func (s *Server) RegisterRoutes() http.Handler {
 		AllowCredentials: true, // Enable cookies/auth
 	}))
 
-	r.GET("/login", s.LoginUserHandler)
+	// Serve login page
+	r.GET("/", authHandler.ShowLoginPage)
 
-	r.Use(auth()) // Apply the auth middleware to all routes
+	auth := r.Group("/auth")
+	{
+		auth.GET("/login", authHandler.LoginHandler)
+		auth.GET("/callback", authHandler.CallbackHandler)
+	}
 
-	r.GET("/", s.HelloWorldHandler)
+	// r.GET("/login", s.LoginUserHandler)
+
+	r.Use(authMiddleware.RequireAuth()) // Apply the auth middleware to all routes
+
 	r.GET("/health", s.healthHandler)
 	r.POST("/user", s.CreateUserHandler)
 	r.GET("/jobs", s.JobsHandler)
@@ -50,18 +72,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// tf.GET("/init", s.TerraformInitHandler)
 
 	return r
-}
-
-func (s *Server) HelloWorldHandler(c *gin.Context) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
-	userInfo, exists := c.Get("user")
-	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "User info not found in context"})
-		return
-	}
-
-	c.JSON(http.StatusOK, userInfo)
 }
 
 func (s *Server) healthHandler(c *gin.Context) {

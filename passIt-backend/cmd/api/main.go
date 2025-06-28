@@ -9,7 +9,11 @@ import (
 	"syscall"
 	"time"
 
+	"passIt/internal/auth"
+	"passIt/internal/config"
 	"passIt/internal/server"
+
+	"github.com/redis/go-redis/v9"
 )
 
 func gracefulShutdown(apiServer *http.Server, done chan bool) {
@@ -37,8 +41,23 @@ func gracefulShutdown(apiServer *http.Server, done chan bool) {
 }
 
 func main() {
+	ctx := context.Background()
 
-	server := server.NewServer()
+	config, err := config.LoadFromEnv()
+	if err != nil {
+		log.Fatalf("failed to load env file config : %v", err)
+		return
+	}
+
+	authClient, err := auth.New(ctx, config.Auth)
+	if err != nil {
+		log.Fatalf("failed to initialize auth client : %v", err)
+	}
+
+	// initialize redis client
+	rdb := redis.NewClient(config.RedisClient)
+
+	server := server.NewServer(ctx, config, authClient, rdb)
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
@@ -46,7 +65,7 @@ func main() {
 	// Run graceful shutdown in a separate goroutine
 	go gracefulShutdown(server, done)
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		panic(fmt.Sprintf("http server error: %s", err))
 	}

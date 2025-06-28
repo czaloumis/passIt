@@ -1,12 +1,10 @@
 package server
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"passIt/internal/models"
 	codes "passIt/internal/passit-codes"
-	"passIt/keyclock"
 
 	"passIt/internal/utils"
 
@@ -37,27 +35,27 @@ type CreateUserReturnBody struct {
 	KeycloackUserID string      `json:"keycloak_user_id"`
 }
 
-func (s *Server) LoginUserHandler(c *gin.Context) {
-	var input LoginUserRequestBody
-	k := keyclock.NewKeycloakClient()
-	json.NewDecoder(c.Request.Body).Decode(&input)
+// func (s *Server) LoginUserHandler(c *gin.Context) {
+// 	var input LoginUserRequestBody
+// 	// k := keyclock.NewKeycloakClient()
+// 	json.NewDecoder(c.Request.Body).Decode(&input)
 
-	token, err := k.LoginUser(input.Username, input.Password)
-	if err != nil {
-		log.Println("Error logging in with user:", err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
-		return
-	}
-	defer c.Request.Body.Close()
+// 	tokens, err := keyclock.LoginUser(c, input.Username, input.Password)
+// 	if err != nil {
+// 		log.Println("Error logging in with user:", err)
+// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+// 		return
+// 	}
+// 	defer c.Request.Body.Close()
 
-	c.Header("Authorization", "Bearer "+token)
-	c.JSON(http.StatusOK, PassItResponseBody{
-		Code: codes.UserLoggedInSuccessfully,
-		Data: nil,
-	},
-	)
+// 	// c.Header("Authorization", "Bearer "+token)
+// 	c.JSON(http.StatusOK, PassItResponseBody{
+// 		Code: codes.UserLoggedInSuccessfully,
+// 		Data: tokens,
+// 	},
+// 	)
 
-}
+// }
 
 func (s *Server) CreateUserHandler(c *gin.Context) {
 	var input CreateUserRequestBody

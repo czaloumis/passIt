@@ -33,5 +33,24 @@
         ]
       }
     }
+  ],
+  "clients": [
+    {
+      "clientId": "passit-backend",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "79VK0WOudj",
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "redirectUris": [
+        "http://localhost:8081/auth/callback"
+      ],
+      "webOrigins": [
+        "*"
+      ],
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true
+    }
   ]
 }
