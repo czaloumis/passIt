@@ -2,7 +2,23 @@ workflows:
   debug:
     name: Debug Network
     max_build_duration: 10
+    environment:
+      groups:
+        - group-one
     scripts:
       - name: Test TLS to corporate GitLab
         script: |
-          echo "Testing TLS connection to corporate GitLab..."
+          curl -v https://$GIT_HOST 2>&1 | grep -E "SSL|TLS|certificate|error|curve"
+      
+      - name: Test git ls-remote with verbose
+        script: |
+          GIT_CURL_VERBOSE=1 GIT_TRACE=1 git ls-remote https://$GIT_NAME:$GIT_PASSWORD@$GIT_HOST/$APP_REPO
+
+      - name: Check git TLS backend
+        script: |
+          git --version
+          curl --version | grep -E "SSL|TLS|GnuTLS|OpenSSL"
+
+      - name: Test MTU / packet size
+        script: |
+          ping -M do -s 1400 $GIT_HOST -c 3
