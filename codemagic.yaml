@@ -1,0 +1,8 @@
+workflows:
+  debug:
+    name: Debug Network
+    max_build_duration: 10
+    scripts:
+      - name: Test TLS to corporate GitLab
+        script: |
+          echo "Testing TLS connection to corporate GitLab..."
